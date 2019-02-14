@@ -518,10 +518,7 @@ public class ActionGraphProtoOutputFormatterCallbackTest extends ActionGraphQuer
             .filter(action -> action.getMnemonic().equals("CppCompileActionTemplate"))
             .collect(Collectors.toList());
 
-    // Darwin and Windows only produce 1 CppCompileActionTemplate with PIC,
-    // while Linux has both PIC and non-PIC CppCompileActionTemplates
-    int expectedActionsCount =
-        (OS.getCurrent() == OS.DARWIN || OS.getCurrent() == OS.WINDOWS) ? 1 : 2;
+    int expectedActionsCount = 1;
 
     // Verify that we have the appropriate number of CppCompileActionTemplates.
     assertThat(cppCompileActionTemplates).hasSize(expectedActionsCount);

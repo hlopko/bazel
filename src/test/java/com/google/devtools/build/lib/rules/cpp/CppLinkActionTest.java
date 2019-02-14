@@ -52,7 +52,6 @@ import com.google.devtools.build.lib.rules.cpp.Link.LinkTargetType;
 import com.google.devtools.build.lib.rules.cpp.Link.LinkingMode;
 import com.google.devtools.build.lib.rules.cpp.LinkerInputs.LibraryToLink;
 import com.google.devtools.build.lib.testutil.TestUtils;
-import com.google.devtools.build.lib.util.OS;
 import com.google.devtools.build.lib.util.Pair;
 import com.google.devtools.build.lib.vfs.FileSystem;
 import com.google.devtools.build.lib.vfs.Path;
@@ -257,12 +256,13 @@ public class CppLinkActionTest extends BuildViewTestCase {
 
   @Test
   public void testCompilesTestSourcesIntoDynamicLibrary() throws Exception {
-    if (OS.getCurrent() == OS.WINDOWS) {
-      // Skip the test on Windows.
-      // TODO(bazel-team): maybe we should move that test that doesn't work with MSVC toolchain to
-      // its own suite with a TestSpec?
-      return;
-    }
+    getAnalysisMock()
+        .ccSupport()
+        .setupCrosstool(
+            mockToolsConfig,
+            MockCcSupport.SUPPORTS_PIC_FEATURE,
+            MockCcSupport.SUPPORTS_INTERFACE_SHARED_LIBRARIES_FEATURE);
+
     scratch.file(
         "x/BUILD",
         "cc_test(name = 'a', srcs = ['a.cc'])",
@@ -293,12 +293,12 @@ public class CppLinkActionTest extends BuildViewTestCase {
 
   @Test
   public void testCompilesDynamicModeTestSourcesWithFeatureIntoDynamicLibrary() throws Exception {
-    if (OS.getCurrent() == OS.WINDOWS) {
-      // Skip the test on Windows.
-      // TODO(bazel-team): maybe we should move that test that doesn't work with MSVC toolchain to
-      // its own suite with a TestSpec?
-      return;
-    }
+    getAnalysisMock()
+        .ccSupport()
+        .setupCrosstool(
+            mockToolsConfig,
+            MockCcSupport.SUPPORTS_PIC_FEATURE,
+            MockCcSupport.SUPPORTS_INTERFACE_SHARED_LIBRARIES_FEATURE);
     scratch.file(
         "x/BUILD",
         "cc_test(name='a', srcs=['a.cc'], features=['dynamic_link_test_srcs'])",
@@ -337,12 +337,12 @@ public class CppLinkActionTest extends BuildViewTestCase {
   @Test
   public void testCompilesDynamicModeBinarySourcesWithoutFeatureIntoDynamicLibrary()
       throws Exception {
-    if (OS.getCurrent() == OS.WINDOWS) {
-      // Skip the test on Windows.
-      // TODO(bazel-team): maybe we should move that test that doesn't work with MSVC toolchain to
-      // its own suite with a TestSpec?
-      return;
-    }
+    getAnalysisMock()
+        .ccSupport()
+        .setupCrosstool(
+            mockToolsConfig,
+            MockCcSupport.SUPPORTS_DYNAMIC_LINKER_FEATURE,
+            MockCcSupport.SUPPORTS_PIC_FEATURE);
     scratch.file(
         "x/BUILD", "cc_binary(name = 'a', srcs = ['a.cc'], features = ['-static_link_test_srcs'])");
     scratch.file("x/a.cc", "int main() {}");
@@ -673,7 +673,12 @@ public class CppLinkActionTest extends BuildViewTestCase {
 
   @Test
   public void testInterfaceOutputForDynamicLibrary() throws Exception {
-    AnalysisMock.get().ccSupport().setupCrosstool(mockToolsConfig);
+    AnalysisMock.get()
+        .ccSupport()
+        .setupCrosstool(
+            mockToolsConfig,
+            MockCcSupport.SUPPORTS_INTERFACE_SHARED_LIBRARIES_FEATURE,
+            MockCcSupport.SUPPORTS_DYNAMIC_LINKER_FEATURE);
     useConfiguration();
 
     scratch.file("foo/BUILD", "cc_library(name = 'foo', srcs = ['foo.cc'])");
@@ -695,7 +700,7 @@ public class CppLinkActionTest extends BuildViewTestCase {
     FeatureConfiguration featureConfiguration =
         CcToolchainFeaturesTest.buildFeatures(
                 ruleContext,
-                "supports_interface_shared_objects: true ",
+                MockCcSupport.SUPPORTS_INTERFACE_SHARED_LIBRARIES_FEATURE,
                 "feature {",
                 "   name: 'build_interface_libraries'",
                 "   flag_set {",
@@ -849,64 +854,6 @@ public class CppLinkActionTest extends BuildViewTestCase {
         linkAction.getLinkCommandLine().getRawLinkArgv(),
         treeArtifactsPaths,
         treeFileArtifactsPaths);
-
-    // Should only reference tree file artifacts.
-    verifyArguments(
-        linkAction.getLinkCommandLine().getRawLinkArgv(expander),
-        treeFileArtifactsPaths,
-        treeArtifactsPaths);
-  }
-
-  @Test
-  public void testLinksTreeArtifactLibraryForDeps() throws Exception {
-    // This test only makes sense if start/end lib archives are supported.
-    analysisMock.ccSupport().setupCrosstool(mockToolsConfig, "supports_start_end_lib: true");
-    useConfiguration("--start_end_lib");
-    RuleContext ruleContext = createDummyRuleContext();
-
-    SpecialArtifact testTreeArtifact = createTreeArtifact("library_directory");
-
-    TreeFileArtifact library0 = ActionInputHelper.treeFileArtifact(testTreeArtifact, "library0.o");
-    TreeFileArtifact library1 = ActionInputHelper.treeFileArtifact(testTreeArtifact, "library1.o");
-
-    ArtifactExpander expander =
-        new ArtifactExpander() {
-          @Override
-          public void expand(Artifact artifact, Collection<? super Artifact> output) {
-            if (artifact.equals(testTreeArtifact)) {
-              output.add(library0);
-              output.add(library1);
-            }
-          };
-        };
-
-    Artifact archiveFile = scratchArtifact("library.a");
-
-    CppLinkActionBuilder builder =
-        createLinkBuilder(ruleContext, LinkTargetType.STATIC_LIBRARY)
-            .setLibraryIdentifier("foo")
-            .addLibrary(
-                LinkerInputs.newInputLibrary(
-                    archiveFile,
-                    ArtifactCategory.STATIC_LIBRARY,
-                    null,
-                    ImmutableList.<Artifact>of(testTreeArtifact),
-                    LtoCompilationContext.EMPTY,
-                    null,
-                    /* mustKeepDebug= */ false));
-
-    CppLinkAction linkAction = builder.build();
-
-    Iterable<String> treeArtifactsPaths = ImmutableList.of(testTreeArtifact.getExecPathString());
-    Iterable<String> treeFileArtifactsPaths =
-        ImmutableList.of(library0.getExecPathString(), library1.getExecPathString());
-
-    // Should only reference the tree artifact.
-    verifyArguments(
-        linkAction.getLinkCommandLine().getRawLinkArgv(),
-        treeArtifactsPaths,
-        treeFileArtifactsPaths);
-    verifyArguments(linkAction.getArguments(), treeArtifactsPaths, treeFileArtifactsPaths);
 
     // Should only reference tree file artifacts.
     verifyArguments(
