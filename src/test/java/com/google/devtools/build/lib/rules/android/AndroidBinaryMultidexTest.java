@@ -13,6 +13,7 @@
 // limitations under the License.
 package com.google.devtools.build.lib.rules.android;
 
+import com.google.devtools.build.lib.packages.util.MockCcSupport;
 import com.google.devtools.build.lib.rules.android.AndroidRuleClasses.MultidexMode;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +31,8 @@ public class AndroidBinaryMultidexTest extends AndroidMultidexBaseTest {
    */
   @Test
   public void testNonMultidexBuildStructure() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     scratch.file("java/foo/BUILD",
         "android_binary(",
         "    name = 'nomultidex',",
@@ -45,6 +48,8 @@ public class AndroidBinaryMultidexTest extends AndroidMultidexBaseTest {
    */
   @Test
   public void testDefaultBuildStructure() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     scratch.file("java/foo/BUILD",
         "android_binary(",
         "    name = 'default',",
@@ -56,6 +61,8 @@ public class AndroidBinaryMultidexTest extends AndroidMultidexBaseTest {
 
   @Test
   public void testManualMainDexMode() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     scratch.file("java/foo/main_dex_list.txt",
         "android/A.class");
     scratch.file("java/foo/BUILD",
@@ -78,6 +85,8 @@ public class AndroidBinaryMultidexTest extends AndroidMultidexBaseTest {
    */
   @Test
   public void testLegacyMultidexBuildStructure() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     scratch.file("java/foo/BUILD",
         "android_binary(",
         "    name = 'legacy',",
@@ -97,6 +106,8 @@ public class AndroidBinaryMultidexTest extends AndroidMultidexBaseTest {
    */
   @Test
   public void testNativeMultidexBuildStructure() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     scratch.file("java/foo/BUILD",
         "android_binary(",
         "    name = 'native',",

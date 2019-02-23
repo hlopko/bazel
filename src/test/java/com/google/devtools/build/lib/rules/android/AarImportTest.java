@@ -31,6 +31,7 @@ import com.google.devtools.build.lib.analysis.configuredtargets.FileConfiguredTa
 import com.google.devtools.build.lib.analysis.util.BuildViewTestCase;
 import com.google.devtools.build.lib.cmdline.Label;
 import com.google.devtools.build.lib.collect.nestedset.NestedSet;
+import com.google.devtools.build.lib.packages.util.MockCcSupport;
 import com.google.devtools.build.lib.rules.java.JavaCompilationArgsProvider;
 import com.google.devtools.build.lib.rules.java.JavaConfiguration.ImportDepsCheckingLevel;
 import com.google.devtools.build.lib.rules.java.JavaInfo;
@@ -342,6 +343,8 @@ public class AarImportTest extends BuildViewTestCase {
 
   @Test
   public void testNativeLibsMakesItIntoApk() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     scratch.file(
         "java/com/google/android/hello/BUILD",
         "aar_import(",
@@ -397,6 +400,8 @@ public class AarImportTest extends BuildViewTestCase {
 
   @Test
   public void testDepsPropagatesMergedAarJars() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     Action appCompileAction =
         getGeneratingAction(
             ActionsTestUtil.getFirstArtifactEndingWith(
@@ -413,6 +418,8 @@ public class AarImportTest extends BuildViewTestCase {
 
   @Test
   public void testExportsPropagatesMergedAarJars() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     FileConfiguredTarget appTarget = getFileConfiguredTarget("//java:app.apk");
     Set<Artifact> artifacts = actionsTestUtil().artifactClosureOf(appTarget.getArtifact());
 
@@ -439,6 +446,8 @@ public class AarImportTest extends BuildViewTestCase {
 
   @Test
   public void testExportsPropagatesResources() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     FileConfiguredTarget appTarget = getFileConfiguredTarget("//java:app.apk");
     Set<Artifact> artifacts = actionsTestUtil().artifactClosureOf(appTarget.getArtifact());
 
@@ -501,6 +510,8 @@ public class AarImportTest extends BuildViewTestCase {
 
   @Test
   public void testExportsManifest() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     Artifact binaryMergedManifest =
         getConfiguredTarget("//java:app").get(ApkInfo.PROVIDER).getMergedManifest();
     // Compare root relative path strings instead of artifacts due to difference in configuration

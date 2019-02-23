@@ -24,6 +24,7 @@ import com.google.devtools.build.lib.actions.Artifact;
 import com.google.devtools.build.lib.analysis.ConfiguredTarget;
 import com.google.devtools.build.lib.analysis.RuleContext;
 import com.google.devtools.build.lib.packages.RuleClass.ConfiguredTargetFactory.RuleErrorException;
+import com.google.devtools.build.lib.packages.util.MockCcSupport;
 import com.google.devtools.build.lib.rules.android.AndroidConfiguration.AndroidAaptVersion;
 import com.google.devtools.build.lib.rules.android.databinding.DataBinding;
 import com.google.devtools.build.lib.rules.android.databinding.DataBindingContext;
@@ -484,6 +485,8 @@ public class AndroidResourcesTest extends ResourceTestBase {
 
   @Test
   public void testProcessBinaryDataGeneratesProguardOutput() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     RuleContext ruleContext = getRuleContext("android_binary", "manifest='AndroidManifest.xml',");
     AndroidDataContext dataContext = AndroidDataContext.forNative(ruleContext);
 
@@ -513,6 +516,8 @@ public class AndroidResourcesTest extends ResourceTestBase {
 
   @Test
   public void test_incompatibleUseAapt2ByDefaultEnabled_targetsAapt2() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     mockAndroidSdkWithAapt2();
     useConfiguration("--android_sdk=//sdk:sdk", "--incompatible_use_aapt2_by_default");
     RuleContext ruleContext =
@@ -524,6 +529,8 @@ public class AndroidResourcesTest extends ResourceTestBase {
 
   @Test
   public void test_incompatibleUseAapt2ByDefaultDisabled_targetsAapt() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     mockAndroidSdkWithAapt2();
     useConfiguration("--android_sdk=//sdk:sdk", "--noincompatible_use_aapt2_by_default");
     RuleContext ruleContext =

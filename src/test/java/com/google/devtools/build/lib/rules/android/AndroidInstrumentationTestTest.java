@@ -25,6 +25,7 @@ import com.google.devtools.build.lib.analysis.FilesToRunProvider;
 import com.google.devtools.build.lib.analysis.RunfilesProvider;
 import com.google.devtools.build.lib.analysis.actions.TemplateExpansionAction;
 import com.google.devtools.build.lib.collect.nestedset.NestedSet;
+import com.google.devtools.build.lib.packages.util.MockCcSupport;
 import com.google.devtools.build.lib.skyframe.ConfiguredTargetAndData;
 import org.junit.Before;
 import org.junit.Test;
@@ -118,6 +119,8 @@ public class AndroidInstrumentationTestTest extends AndroidBuildViewTestCase {
 
   @Test
   public void testTestExecutableRunfiles() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     ConfiguredTargetAndData androidInstrumentationTest =
         getConfiguredTargetAndData("//javatests/com/app/ait");
     NestedSet<Artifact> runfiles =
@@ -162,6 +165,8 @@ public class AndroidInstrumentationTestTest extends AndroidBuildViewTestCase {
 
   @Test
   public void testTestExecutableContents() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     ConfiguredTarget androidInstrumentationTest = getConfiguredTarget("//javatests/com/app/ait");
     assertThat(androidInstrumentationTest).isNotNull();
 
@@ -184,6 +189,8 @@ public class AndroidInstrumentationTestTest extends AndroidBuildViewTestCase {
 
   @Test
   public void testAtMostOneHostServiceFixture() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     checkError(
         "javatests/com/app/ait2",
         "ait",
@@ -206,6 +213,8 @@ public class AndroidInstrumentationTestTest extends AndroidBuildViewTestCase {
 
   @Test
   public void testInstrumentationBinaryIsInstrumenting() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     checkError(
         "javatests/com/app/instr",
         "ait",
@@ -226,6 +235,8 @@ public class AndroidInstrumentationTestTest extends AndroidBuildViewTestCase {
   @Test
   public void testAndroidInstrumentationTestWithSkylarkDevice()
       throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     scratch.file(
         "javatests/com/app/skylarkdevice/local_adb_device.bzl",
         "def _impl(ctx):",

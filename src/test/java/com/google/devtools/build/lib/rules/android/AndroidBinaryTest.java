@@ -48,6 +48,7 @@ import com.google.devtools.build.lib.packages.BuildType;
 import com.google.devtools.build.lib.packages.FileTarget;
 import com.google.devtools.build.lib.packages.Rule;
 import com.google.devtools.build.lib.packages.util.BazelMockAndroidSupport;
+import com.google.devtools.build.lib.packages.util.MockCcSupport;
 import com.google.devtools.build.lib.rules.android.AndroidRuleClasses.MultidexMode;
 import com.google.devtools.build.lib.rules.android.deployinfo.AndroidDeployInfoOuterClass.AndroidDeployInfo;
 import com.google.devtools.build.lib.rules.cpp.CppFileTypes;
@@ -89,6 +90,11 @@ public class AndroidBinaryTest extends AndroidBuildViewTestCase {
     scratch.file("java/android/A.java",
         "package android; public class A {};");
   }
+
+    @Before
+    public void prepareCcToolchain() throws Exception {
+        getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+    }
 
   @Test
   public void testAndroidSplitTransitionWithInvalidCpu() throws Exception {

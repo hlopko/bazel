@@ -46,6 +46,7 @@ import com.google.devtools.build.lib.analysis.configuredtargets.OutputFileConfig
 import com.google.devtools.build.lib.cmdline.Label;
 import com.google.devtools.build.lib.cmdline.RepositoryName;
 import com.google.devtools.build.lib.collect.nestedset.NestedSet;
+import com.google.devtools.build.lib.packages.util.MockCcSupport;
 import com.google.devtools.build.lib.rules.android.AndroidLibraryAarInfo.Aar;
 import com.google.devtools.build.lib.rules.java.JavaCompilationArgsProvider;
 import com.google.devtools.build.lib.rules.java.JavaCompilationInfoProvider;
@@ -831,6 +832,8 @@ public class AndroidLibraryTest extends AndroidBuildViewTestCase {
 
   @Test
   public void testAidlLibAddsProguardSpecs() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     scratch.file(
         "sdk/BUILD",
         "android_sdk(",
@@ -2030,6 +2033,8 @@ public class AndroidLibraryTest extends AndroidBuildViewTestCase {
 
   @Test
   public void testAndroidLibraryValidatesProguardSpec() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     scratch.file(
         "java/com/google/android/hello/BUILD",
         "android_library(",

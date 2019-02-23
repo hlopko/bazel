@@ -16,6 +16,7 @@ package com.google.devtools.build.lib.rules.android;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.devtools.build.lib.analysis.util.BuildViewTestCase;
+import com.google.devtools.build.lib.packages.util.MockCcSupport;
 import com.google.devtools.build.lib.rules.android.AndroidRuleClasses.MultidexMode;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,6 +51,8 @@ public class AndroidCommonTest extends BuildViewTestCase {
   // regression test for #3169099
   @Test
   public void testBinarySrcs() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     scratch.file("java/srcs/BUILD",
         "android_binary(name = 'empty', manifest = 'AndroidManifest.xml', srcs = [])",
         "android_binary(name = 'valid', manifest = 'AndroidManifest.xml', "

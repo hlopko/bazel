@@ -109,7 +109,6 @@ final class Crosstool {
                 .join(
                     "filegroup(",
                     "  name = '" + staticRuntimeLabel + "',",
-                    "  licenses = ['unencumbered'],",
                     "  srcs = ['libstatic-runtime-lib-source.a'])",
                     ""));
       }
@@ -119,7 +118,6 @@ final class Crosstool {
                 .join(
                     "filegroup(",
                     "  name = '" + dynamicRuntimeLabel + "',",
-                    "  licenses = ['unencumbered'],",
                     "  srcs = ['libdynamic-runtime-lib-source.so'])",
                     ""));
       }
@@ -152,7 +150,6 @@ final class Crosstool {
                   "cc_toolchain(",
                   "  name = 'cc-compiler-" + suffix + "',",
                   "  toolchain_identifier = '" + toolchain.getToolchainIdentifier() + "',",
-                  "  output_licenses = ['unencumbered'],",
                   "  module_map = 'crosstool.cppmap',",
                   "  cpu = '" + toolchain.getTargetCpu() + "',",
                   "  compiler = '" + toolchain.getCompiler() + "',",
@@ -164,7 +161,6 @@ final class Crosstool {
                   "  strip_files = ':every-file',",
                   "  objcopy_files = 'objcopy-" + toolchain.getTargetCpu() + "',",
                   "  all_files = ':every-file',",
-                  "  licenses = ['unencumbered'],",
                   supportsHeaderParsing ? "    supports_header_parsing = 1," : "",
                   dynamicRuntimeLabel == null
                       ? ""
@@ -180,7 +176,6 @@ final class Crosstool {
         Joiner.on("\n")
             .join(
                 "package(default_visibility=['//visibility:public'])",
-                "licenses(['restricted'])",
                 "",
                 "toolchain_type(name = 'toolchain_type')",
                 "cc_toolchain_alias(name = 'current_cc_toolchain')",
@@ -188,7 +183,7 @@ final class Crosstool {
                 "filegroup(name = 'everything-multilib',",
                 "          srcs = glob(['" + version + "/**/*'],",
                 "              exclude_directories = 1),",
-                "          output_licenses = ['unencumbered'])",
+                ")",
                 "",
                 String.format(
                     "cc_toolchain_suite(name = 'everything', toolchains = {%s})", compilerMap),

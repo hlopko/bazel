@@ -26,6 +26,7 @@ import com.google.devtools.build.lib.actions.extra.JavaCompileInfo;
 import com.google.devtools.build.lib.actions.util.ActionsTestUtil;
 import com.google.devtools.build.lib.analysis.ConfiguredTarget;
 import com.google.devtools.build.lib.cmdline.RepositoryName;
+import com.google.devtools.build.lib.packages.util.MockCcSupport;
 import com.google.devtools.build.lib.rules.android.databinding.UsesDataBindingProvider;
 import com.google.devtools.build.lib.rules.java.JavaCompileAction;
 import java.util.List;
@@ -104,6 +105,8 @@ public class AndroidDataBindingTest extends AndroidBuildViewTestCase {
 
   @Test
   public void basicDataBindingIntegration() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     writeDataBindingFiles();
     ConfiguredTarget ctapp = getConfiguredTarget("//java/android/binary:app");
     Set<Artifact> allArtifacts = actionsTestUtil().artifactClosureOf(getFilesToBuild(ctapp));
@@ -150,6 +153,8 @@ public class AndroidDataBindingTest extends AndroidBuildViewTestCase {
 
   @Test
   public void dataBindingCompilationUsesMetadataFromDeps() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     writeDataBindingFiles();
     ConfiguredTarget ctapp = getConfiguredTarget("//java/android/binary:app");
     Set<Artifact> allArtifacts = actionsTestUtil().artifactClosureOf(getFilesToBuild(ctapp));
@@ -187,6 +192,8 @@ public class AndroidDataBindingTest extends AndroidBuildViewTestCase {
 
   @Test
   public void dataBindingAnnotationProcessorFlags() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     writeDataBindingFiles();
     ConfiguredTarget ctapp = getConfiguredTarget("//java/android/binary:app");
     Set<Artifact> allArtifacts = actionsTestUtil().artifactClosureOf(getFilesToBuild(ctapp));
@@ -221,6 +228,8 @@ public class AndroidDataBindingTest extends AndroidBuildViewTestCase {
 
   @Test
   public void dataBindingIncludesTransitiveDepsForLibsWithNoResources() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     writeDataBindingFilesWithNoResourcesDep();
     ConfiguredTarget ct = getConfiguredTarget("//java/android/binary:app");
     Set<Artifact> allArtifacts = actionsTestUtil().artifactClosureOf(getFilesToBuild(ct));
@@ -285,6 +294,8 @@ public class AndroidDataBindingTest extends AndroidBuildViewTestCase {
 
   @Test
   public void missingDataBindingAttributeStillAnalyzes() throws Exception {
+    getAnalysisMock().ccSupport().setupCrosstool(mockToolsConfig, /* appendToCurrentToolchain=*/ false, MockCcSupport.emptyToolchainForCpu("armeabi-v7a"));
+
     // When a library is missing enable_data_binding = 1, we expect it to fail in execution (because
     // aapt doesn't know how to read the data binding expressions). But analysis should work.
     scratch.file(

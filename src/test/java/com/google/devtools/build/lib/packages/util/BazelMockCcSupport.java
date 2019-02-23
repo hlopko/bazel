@@ -70,57 +70,7 @@ public final class BazelMockCcSupport extends MockCcSupport {
 
   @Override
   public void setup(MockToolsConfig config) throws IOException {
-    config.create(
-        "/bazel_tools_workspace/tools/cpp/BUILD",
-        "package(default_visibility=['//visibility:public'])",
-        "toolchain_type(name = 'toolchain_type')",
-        "cc_library(name = 'malloc')",
-        "cc_toolchain_suite(",
-        "    name = 'toolchain',",
-        "    toolchains = {",
-        "      'k8': ':cc-compiler-k8',",
-        "    })",
-        "cc_toolchain(name = 'cc-compiler-k8', all_files = ':empty', compiler_files = ':empty',",
-        "    toolchain_identifier = 'mock-llvm-toolchain-k8',",
-        "    cpu = 'k8',",
-        "    compiler = 'compiler',",
-        "    dwp_files = ':empty',",
-        "    dynamic_runtime_lib = ':empty', ",
-        "    ar_files = ':empty', as_files = ':empty', linker_files = ':empty',",
-        "    module_map = 'crosstool.cppmap', supports_header_parsing = 1,",
-        "    objcopy_files = ':empty', static_runtime_lib = ':empty', strip_files = ':empty',",
-        ")",
-        "toolchain(name = 'cc-toolchain-k8',",
-        // Needs to be compatible with all execution environments for tests to work properly.
-        "    exec_compatible_with = [],",
-        "    target_compatible_with = [",
-        "        '@bazel_tools//platforms:x86_64',",
-        "        '@bazel_tools//platforms:linux',",
-        "    ],",
-        "    toolchain = ':cc-compiler-k8',",
-        "    toolchain_type = ':toolchain_type',",
-        ")",
-        "filegroup(",
-        "    name = 'interface_library_builder',",
-        "    srcs = ['build_interface_so'],",
-        ")",
-        "filegroup(",
-        "    name = 'link_dynamic_library',",
-        "    srcs = ['link_dynamic_library.sh'],",
-        ")",
-        "cc_toolchain_alias(name = 'current_cc_toolchain')",
-        "filegroup(",
-        "    name = 'crosstool',",
-        "    srcs = [':current_cc_toolchain'],",
-        ")");
-    config.create(
-        "/bazel_tools_workspace/tools/cpp/CROSSTOOL",
-        readCrosstoolFile());
-    if (config.isRealFileSystem()) {
-      config.linkTool("tools/cpp/link_dynamic_library.sh");
-    } else {
-      config.create("tools/cpp/link_dynamic_library.sh", "");
-    }
+    setupCrosstool(config);
     MockPlatformSupport.setup(
         config, "/bazel_tools_workspace/platforms", "/local_config_platform_workspace");
   }
