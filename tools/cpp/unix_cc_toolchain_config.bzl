@@ -16,10 +16,12 @@
 
 load(
     "@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
+    "action_config",
     "feature",
     "feature_set",
     "flag_group",
     "flag_set",
+    "tool",
     "tool_path",
     "variable_with_value",
     "with_feature_set",
@@ -85,7 +87,12 @@ def _impl(ctx):
         tool_path(name = name, path = path)
         for name, path in ctx.attr.tool_paths.items()
     ]
-    action_configs = []
+    action_configs = [
+        action_config(
+            action_name = ACTION_NAMES.cpp_header_parsing,
+            tools = [tool(path = "header_parsing_wrapper.sh")],
+        ),
+    ]
 
     supports_pic_feature = feature(
         name = "supports_pic",
@@ -944,45 +951,45 @@ def _impl(ctx):
     )
 
     layering_check = feature(
-            name = "layering_check",
-            implies = ["use_module_maps"],
-            flag_sets = [
-                flag_set(
-                    actions = [
-                        ACTION_NAMES.c_compile,
-                        ACTION_NAMES.cpp_compile,
-                        ACTION_NAMES.cpp_header_parsing,
-                        ACTION_NAMES.cpp_module_compile,
-                    ],
-                    flag_groups = [
-                        flag_group(flags = [
-                            "-fmodules-strict-decluse",
-                            "-Wprivate-header",
-                        ]),
-                        flag_group(
-                            iterate_over = "dependent_module_map_files",
-                            flags = [
-                                "-fmodule-map-file=%{dependent_module_map_files}",
-                            ],
-                        ),
-                    ],
-                ),
-            ],
-        )
+        name = "layering_check",
+        implies = ["use_module_maps"],
+        flag_sets = [
+            flag_set(
+                actions = [
+                    ACTION_NAMES.c_compile,
+                    ACTION_NAMES.cpp_compile,
+                    ACTION_NAMES.cpp_header_parsing,
+                    ACTION_NAMES.cpp_module_compile,
+                ],
+                flag_groups = [
+                    flag_group(flags = [
+                        "-fmodules-strict-decluse",
+                        "-Wprivate-header",
+                    ]),
+                    flag_group(
+                        iterate_over = "dependent_module_map_files",
+                        flags = [
+                            "-fmodule-map-file=%{dependent_module_map_files}",
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
     parse_headers = feature(
-            name = "parse_headers",
-            flag_sets = [
-                flag_set(
-                    actions = [ACTION_NAMES.cpp_header_parsing],
-                    flag_groups = [
-                        flag_group(flags = [
-                            "-xc++-header",
-                            "-fsyntax-only",
-                        ]),
-                    ],
-                ),
-            ],
-        )
+        name = "parse_headers",
+        flag_sets = [
+            flag_set(
+                actions = [ACTION_NAMES.cpp_header_parsing],
+                flag_groups = [
+                    flag_group(flags = [
+                        "-xc++-header",
+                        "-fsyntax-only",
+                    ]),
+                ],
+            ),
+        ],
+    )
 
     force_pic_flags_feature = feature(
         name = "force_pic_flags",

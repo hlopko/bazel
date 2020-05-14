@@ -323,6 +323,7 @@ def configure_unix_toolchain(repository_ctx, cpu_value, overriden_tools):
         "@bazel_tools//tools/cpp:unix_cc_toolchain_config.bzl",
         "@bazel_tools//tools/cpp:linux_cc_wrapper.sh.tpl",
         "@bazel_tools//tools/cpp:osx_cc_wrapper.sh.tpl",
+        "@bazel_tools//tools/cpp:header_parsing_wrapper.sh.tpl",
     ])
 
     repository_ctx.symlink(
@@ -367,6 +368,15 @@ def configure_unix_toolchain(repository_ctx, cpu_value, overriden_tools):
     repository_ctx.template(
         "cc_wrapper.sh",
         paths[cc_wrapper_src],
+        {
+            "%{cc}": escape_string(str(cc)),
+            "%{env}": escape_string(get_env(repository_ctx)),
+        },
+    )
+
+    repository_ctx.template(
+        "header_parsing_wrapper.sh",
+        paths["@bazel_tools//tools/cpp:header_parsing_wrapper.sh.tpl"],
         {
             "%{cc}": escape_string(str(cc)),
             "%{env}": escape_string(get_env(repository_ctx)),
@@ -433,7 +443,7 @@ def configure_unix_toolchain(repository_ctx, cpu_value, overriden_tools):
             "%{name}": cpu_value,
             "%{supports_param_files}": "0" if darwin else "1",
             "%{cc_compiler_deps}": get_starlark_list([":builtin_include_directory_paths"] + (
-                [":cc_wrapper"] if darwin else []
+                [":cc_wrapper", "header_parsing_wrapper.sh"] if darwin else [ "header_parsing_wrapper.sh"]
             )),
             "%{compiler}": escape_string(get_env_var(
                 repository_ctx,
