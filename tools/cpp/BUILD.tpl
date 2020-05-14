@@ -67,6 +67,7 @@ cc_toolchain(
     objcopy_files = ":empty",
     strip_files = ":empty",
     supports_param_files = %{supports_param_files},
+    supports_header_parsing = 1,
 )
 
 cc_toolchain_config(
