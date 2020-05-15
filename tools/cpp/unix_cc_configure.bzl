@@ -373,6 +373,10 @@ def configure_unix_toolchain(repository_ctx, cpu_value, overriden_tools):
             "%{env}": escape_string(get_env(repository_ctx)),
         },
     )
+    repository_ctx.file(
+        "tools/cpp/module.modulemap",
+        ""
+    )
 
     repository_ctx.template(
         "header_parsing_wrapper.sh",

@@ -68,6 +68,7 @@ cc_toolchain(
     strip_files = ":empty",
     supports_param_files = %{supports_param_files},
     supports_header_parsing = 1,
+    module_map = ":module.modulemap",
 )
 
 cc_toolchain_config(
